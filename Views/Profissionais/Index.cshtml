@@ -1,0 +1,130 @@
+﻿@model SisSistemasWeb.Models.ViewModels.ProfissionalViewModel
+
+@{
+    ViewData["Title"] = "Gerenciamento de Profissionais";
+    bool isEditMode = Model.ProfissionalParaEditar.Id > 0;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (TempData["Sucesso"] != null) {
+    <div class="alert alert-success" role="alert">
+        @TempData["Sucesso"]
+    </div>
+}
+
+<div class="row">
+    <div class="col-lg-4">
+        <h3>@(isEditMode ? "Editar Profissional" : "Novo Profissional")</h3>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Salvar" method="post">
+                    <input type="hidden" asp-for="ProfissionalParaEditar.Id" />
+
+                    <div class="mb-2">
+                        <label asp-for="ProfissionalParaEditar.NomeCompleto" class="form-label"></label>
+                        <input asp-for="ProfissionalParaEditar.NomeCompleto" class="form-control" id="nomeInput" />
+                        <span asp-validation-for="ProfissionalParaEditar.NomeCompleto" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-2">
+                        <label asp-for="ProfissionalParaEditar.Salario" class="form-label"></label>
+                        <input type="hidden" asp-for="ProfissionalParaEditar.Salario" id="salarioReal" />
+                        <input type="text" id="salarioMascara" class="form-control" placeholder="R$ 0,00" autocomplete="off" />
+                        <span asp-validation-for="ProfissionalParaEditar.Salario" class="text-danger"></span>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label asp-for="ProfissionalParaEditar.Telefone" class="form-label"></label>
+                            <input asp-for="ProfissionalParaEditar.Telefone" class="form-control" id="telefoneInput" placeholder="Apenas números" maxlength="15" />
+                            <span asp-validation-for="ProfissionalParaEditar.Telefone" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ProfissionalParaEditar.RG" class="form-label"></label>
+                            <input asp-for="ProfissionalParaEditar.RG" class="form-control" id="rgInput" placeholder="Apenas números" maxlength="20" />
+                            <span asp-validation-for="ProfissionalParaEditar.RG" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label asp-for="ProfissionalParaEditar.CEP" class="form-label"></label>
+                        <input asp-for="ProfissionalParaEditar.CEP" class="form-control" id="cepInput" placeholder="Apenas números" maxlength="9" />
+                        <span asp-validation-for="ProfissionalParaEditar.CEP" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-2">
+                        <label asp-for="ProfissionalParaEditar.Endereco" class="form-label"></label>
+                        <input asp-for="ProfissionalParaEditar.Endereco" class="form-control" />
+                        <span asp-validation-for="ProfissionalParaEditar.Endereco" class="text-danger"></span>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-5">
+                            <label asp-for="ProfissionalParaEditar.Bairro" class="form-label"></label>
+                            <input asp-for="ProfissionalParaEditar.Bairro" class="form-control" />
+                        </div>
+                        <div class="col-md-5">
+                            <label asp-for="ProfissionalParaEditar.Cidade" class="form-label"></label>
+                            <input asp-for="ProfissionalParaEditar.Cidade" class="form-control" />
+                        </div>
+                        <div class="col-md-2">
+                            <label asp-for="ProfissionalParaEditar.UF" class="form-label"></label>
+                            <select asp-for="ProfissionalParaEditar.UF" asp-items="@ViewBag.Estados" class="form-select">
+                                <option value="">UF</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">@(isEditMode ? "Salvar Edição" : "Salvar Novo")</button>
+                        @if (isEditMode) {
+                            <a asp-action="Index" asp-route-id="" class="btn btn-secondary">Cancelar Edição</a>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <h3>Profissionais Cadastrados</h3>
+
+        <table class="table table-striped table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Salário</th>
+                    <th>Telefone</th>
+                    <th>Cidade/UF</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.TodosProfissionais) {
+                    <tr>
+                        <td>@p.NomeCompleto</td>
+                        <td>@p.Salario.ToString("C")</td>
+                        <td>@p.Telefone</td>
+                        <td>@p.Cidade / @p.UF</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a asp-action="Index" asp-route-id="@p.Id" class="btn btn-warning btn-sm">Editar</a>
+                                <form asp-action="Excluir" method="post" onsubmit="return confirm('Tem certeza que deseja excluir @p.NomeCompleto?');">
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/profissionais-index.js" asp-append-version="true"></script>
+}
